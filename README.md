@@ -1,4 +1,12 @@
-# firelog
-<h1>Logging tool for shooters.</h1>
-<h2>Specificly for shooting disipline with pistols and revolvers at 25 meter, and in series of 5 shots.</h2>
-<p>In Sweden you has to, as shooter, be able to show when you shoot, with what and tell when the last goldseries was.</p>
+# Firelog
+<h1>Loggbok för pistolskytte</h1>
+<p>Loggboken är till för pistol-/revolverskyttar som skjuter precision på 25m</p>
+<p>Denna kan användas för att hålla koll på sitt skytte elektroniskt, samt att man lätt kan hålla koll på när man skjöt en guldserie senast och i vilken utsträckning man använt sina vapen.</p>
+<h3>Funktioner:</h3>
+<ul>
+    <li>Inloggning</li>
+    <li>Krypterade data</li>
+    <li>Förteckning av vapen</li>
+    <li>Skjutresultat med datum och tid</li>
+    <li>Diagram</li>
+</ul>
