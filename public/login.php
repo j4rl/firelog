@@ -5,24 +5,26 @@ require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/auth.php';
 
 if (is_logged_in()) {
-    redirect('dashboard.php');
+    redirect(current_user_is_admin() ? 'admin.php' : 'dashboard.php');
 }
 
 $page_title = 'Logga in';
 $error = '';
+$usersTable = db_table('users');
 
 if (is_post()) {
     $username = trim($_POST['username'] ?? '');
     $password = (string) ($_POST['password'] ?? '');
 
-    $stmt = $pdo->prepare('SELECT id, password_hash FROM users WHERE username = ?');
+    $stmt = $pdo->prepare("SELECT id, password_hash, is_admin FROM {$usersTable} WHERE username = ?");
     $stmt->execute([$username]);
     $user = $stmt->fetch();
 
     if ($user && password_verify($password, $user['password_hash'])) {
         $_SESSION['user_id'] = (int) $user['id'];
+        $_SESSION['is_admin'] = (bool) $user['is_admin'];
         session_regenerate_id(true);
-        redirect('dashboard.php');
+        redirect($_SESSION['is_admin'] ? 'admin.php' : 'dashboard.php');
     }
 
     $error = 'Fel användarnamn eller lösenord.';

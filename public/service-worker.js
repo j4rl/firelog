@@ -1,7 +1,7 @@
-const CACHE_NAME = 'skjutdagbok-v1';
+const CACHE_NAME = 'skjutdagbok-v6';
 const STATIC_ASSETS = [
-  '../assets/style.css',
-  '../assets/app.js',
+  'assets/style.css',
+  'assets/app.js',
   'manifest.webmanifest'
 ];
 

@@ -1,4 +1,6 @@
 -- Ändra databasnamnet om du vill använda ett annat namn.
+-- Om du sätter $db_table_prefix i includes/db.php måste samma prefix användas
+-- på tabellnamnen och FOREIGN KEY-referenserna i detta schema innan import.
 CREATE DATABASE IF NOT EXISTS shooting_log
   CHARACTER SET utf8mb4
   COLLATE utf8mb4_unicode_ci;
@@ -9,6 +11,8 @@ CREATE TABLE IF NOT EXISTS users (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   username VARCHAR(80) NOT NULL UNIQUE,
   password_hash VARCHAR(255) NOT NULL,
+  is_admin TINYINT(1) NOT NULL DEFAULT 0,
+  birth_date DATE NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
@@ -36,6 +40,7 @@ CREATE TABLE IF NOT EXISTS shooting_sessions (
   location VARCHAR(160) NOT NULL,
   discipline VARCHAR(120) NOT NULL,
   distance_meters INT UNSIGNED NOT NULL,
+  shooter_age TINYINT UNSIGNED NULL,
   notes TEXT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   INDEX idx_sessions_user_date (user_id, session_date),

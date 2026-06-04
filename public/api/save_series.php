@@ -13,7 +13,7 @@ function api_response(array $payload, int $status = 200): never
     exit;
 }
 
-if (!is_logged_in()) {
+if (!is_logged_in() || current_user_is_admin()) {
     api_response(['success' => false, 'message' => 'Du måste vara inloggad.'], 401);
 }
 
@@ -33,9 +33,19 @@ if (!is_array($shots) || count($shots) === 0) {
     api_response(['success' => false, 'message' => 'Serien måste innehålla minst ett skott.'], 400);
 }
 
-$stmt = $pdo->prepare('SELECT id FROM shooting_sessions WHERE id = ? AND user_id = ?');
+$sessionsTable = db_table('shooting_sessions');
+$weaponsTable = db_table('weapons');
+$seriesTable = db_table('series');
+
+$stmt = $pdo->prepare(
+    'SELECT ss.id, ss.discipline, ss.shooter_age, w.weapon_class
+     FROM ' . $sessionsTable . ' ss
+     JOIN ' . $weaponsTable . ' w ON w.id = ss.weapon_id
+     WHERE ss.id = ? AND ss.user_id = ?'
+);
 $stmt->execute([$sessionId, current_user_id()]);
-if (!$stmt->fetch()) {
+$session = $stmt->fetch();
+if (!$session) {
     api_response(['success' => false, 'message' => 'Skjutpasset hittades inte.'], 404);
 }
 
@@ -47,11 +57,11 @@ try {
 
 $pdo->beginTransaction();
 try {
-    $stmt = $pdo->prepare('SELECT COALESCE(MAX(series_number), 0) + 1 AS next_number FROM series WHERE session_id = ? FOR UPDATE');
+    $stmt = $pdo->prepare("SELECT COALESCE(MAX(series_number), 0) + 1 AS next_number FROM {$seriesTable} WHERE session_id = ? FOR UPDATE");
     $stmt->execute([$sessionId]);
     $seriesNumber = (int) $stmt->fetch()['next_number'];
 
-    $stmt = $pdo->prepare('INSERT INTO series (session_id, series_number, shots_json, total_score, x_count, shot_count) VALUES (?, ?, ?, ?, ?, ?)');
+    $stmt = $pdo->prepare("INSERT INTO {$seriesTable} (session_id, series_number, shots_json, total_score, x_count, shot_count) VALUES (?, ?, ?, ?, ?, ?)");
     $stmt->execute([
         $sessionId,
         $seriesNumber,
@@ -72,4 +82,10 @@ api_response([
     'total_score' => $score['total_score'],
     'x_count' => $score['x_count'],
     'shot_count' => $score['shot_count'],
+    'medal' => series_medal_for_context(
+        (string) $session['discipline'],
+        (string) $session['weapon_class'],
+        $session['shooter_age'] !== null ? (int) $session['shooter_age'] : null,
+        $shots
+    ),
 ]);

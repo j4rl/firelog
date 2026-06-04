@@ -2,13 +2,21 @@
 declare(strict_types=1);
 
 $active_page = basename($_SERVER['SCRIPT_NAME'] ?? '');
-$nav_items = [
-    'dashboard.php' => 'Hem',
-    'weapons.php' => 'Vapen',
-    'session_new.php' => 'Skjut',
-    'history.php' => 'Historik',
-    'stats.php' => 'Stats',
-];
+$nav_items = current_user_is_admin()
+    ? [
+        'admin.php' => 'Admin',
+        'admin_users.php' => 'Användare',
+        'admin_weapons.php' => 'Vapen',
+        'admin_series.php' => 'Serier',
+    ]
+    : [
+        'dashboard.php' => 'Hem',
+        'weapons.php' => 'Vapen',
+        'session_new.php' => 'Skjut',
+        'history.php' => 'Historik',
+        'stats.php' => 'Stats',
+        'profile.php' => 'Profil',
+    ];
 ?>
     </main>
 
@@ -20,6 +28,6 @@ $nav_items = [
         </nav>
     <?php endif; ?>
 </div>
-<script src="../assets/app.js"></script>
+<script src="assets/app.js"></script>
 </body>
 </html>

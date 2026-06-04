@@ -3,17 +3,18 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/auth.php';
-require_login();
+require_shooter();
 
 $page_title = 'Lägg till vapen';
 $error = '';
+$weaponsTable = db_table('weapons');
 
 if (is_post()) {
     $class = $_POST['weapon_class'] ?? '';
     if (!valid_weapon_class($class)) {
         $error = 'Välj klass A, B, C eller R.';
     } else {
-        $stmt = $pdo->prepare('INSERT INTO weapons (user_id, manufacturer, model, caliber, serial_number, weapon_class, notes) VALUES (?, ?, ?, ?, ?, ?, ?)');
+        $stmt = $pdo->prepare("INSERT INTO {$weaponsTable} (user_id, manufacturer, model, caliber, serial_number, weapon_class, notes) VALUES (?, ?, ?, ?, ?, ?, ?)");
         $stmt->execute([
             current_user_id(),
             trim($_POST['manufacturer'] ?? ''),

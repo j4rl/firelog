@@ -3,26 +3,32 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/auth.php';
-require_shooter();
+require_admin();
 
-$page_title = 'Redigera vapen';
 $id = (int) ($_GET['id'] ?? 0);
 $weaponsTable = db_table('weapons');
-$stmt = $pdo->prepare("SELECT * FROM {$weaponsTable} WHERE id = ? AND user_id = ?");
-$stmt->execute([$id, current_user_id()]);
+$usersTable = db_table('users');
+$stmt = $pdo->prepare(
+    'SELECT w.*, u.username
+     FROM ' . $weaponsTable . ' w
+     JOIN ' . $usersTable . ' u ON u.id = w.user_id
+     WHERE w.id = ?'
+);
+$stmt->execute([$id]);
 $weapon = $stmt->fetch();
-
 if (!$weapon) {
-    redirect('weapons.php');
+    redirect('admin_weapons.php');
 }
 
+$page_title = 'Redigera vapen';
 $error = '';
+
 if (is_post()) {
     $class = $_POST['weapon_class'] ?? '';
     if (!valid_weapon_class($class)) {
         $error = 'Välj klass A, B, C eller R.';
     } else {
-        $stmt = $pdo->prepare("UPDATE {$weaponsTable} SET manufacturer = ?, model = ?, caliber = ?, serial_number = ?, weapon_class = ?, notes = ? WHERE id = ? AND user_id = ?");
+        $stmt = $pdo->prepare("UPDATE {$weaponsTable} SET manufacturer = ?, model = ?, caliber = ?, serial_number = ?, weapon_class = ?, notes = ? WHERE id = ?");
         $stmt->execute([
             trim($_POST['manufacturer'] ?? ''),
             trim($_POST['model'] ?? ''),
@@ -31,15 +37,15 @@ if (is_post()) {
             $class,
             trim($_POST['notes'] ?? ''),
             $id,
-            current_user_id(),
         ]);
-        redirect('weapons.php');
+        redirect('admin_weapons.php');
     }
 }
 
 require __DIR__ . '/../includes/header.php';
 ?>
 <section class="card stack">
+    <p class="muted">Ägare: <?= e($weapon['username']) ?></p>
     <?php if ($error): ?><div class="message error"><?= e($error) ?></div><?php endif; ?>
     <form class="form-grid two" method="post">
         <label>Fabrikat <input name="manufacturer" value="<?= e($weapon['manufacturer']) ?>" required></label>
@@ -54,7 +60,10 @@ require __DIR__ . '/../includes/header.php';
             </select>
         </label>
         <label>Anteckningar <textarea name="notes"><?= e($weapon['notes'] ?? '') ?></textarea></label>
-        <button type="submit">Spara ändringar</button>
+        <div class="actions">
+            <button type="submit">Spara vapen</button>
+            <a class="button secondary" href="admin_weapons.php">Avbryt</a>
+        </div>
     </form>
 </section>
 <?php require __DIR__ . '/../includes/footer.php'; ?>

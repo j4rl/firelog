@@ -3,10 +3,11 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/auth.php';
-require_login();
+require_shooter();
 
 $page_title = 'Vapen';
-$stmt = $pdo->prepare('SELECT id, manufacturer, model, caliber, weapon_class FROM weapons WHERE user_id = ? ORDER BY manufacturer, model');
+$weaponsTable = db_table('weapons');
+$stmt = $pdo->prepare("SELECT id, manufacturer, model, caliber, weapon_class FROM {$weaponsTable} WHERE user_id = ? ORDER BY manufacturer, model");
 $stmt->execute([current_user_id()]);
 $weapons = $stmt->fetchAll();
 

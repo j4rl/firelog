@@ -5,11 +5,12 @@ require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/auth.php';
 
 if (is_logged_in()) {
-    redirect('dashboard.php');
+    redirect(current_user_is_admin() ? 'admin.php' : 'dashboard.php');
 }
 
 $page_title = 'Skapa konto';
 $error = '';
+$usersTable = db_table('users');
 
 if (is_post()) {
     $username = trim($_POST['username'] ?? '');
@@ -19,9 +20,10 @@ if (is_post()) {
         $error = 'Ange användarnamn och minst 8 tecken långt lösenord.';
     } else {
         try {
-            $stmt = $pdo->prepare('INSERT INTO users (username, password_hash) VALUES (?, ?)');
+            $stmt = $pdo->prepare("INSERT INTO {$usersTable} (username, password_hash) VALUES (?, ?)");
             $stmt->execute([$username, password_hash($password, PASSWORD_DEFAULT)]);
             $_SESSION['user_id'] = (int) $pdo->lastInsertId();
+            $_SESSION['is_admin'] = false;
             session_regenerate_id(true);
             redirect('dashboard.php');
         } catch (PDOException $exception) {

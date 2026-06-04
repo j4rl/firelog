@@ -3,19 +3,22 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/auth.php';
-require_login();
+require_shooter();
 
 $userId = current_user_id();
 $page_title = 'Hem';
+$weaponsTable = db_table('weapons');
+$sessionsTable = db_table('shooting_sessions');
+$seriesTable = db_table('series');
 
-$stmt = $pdo->prepare('SELECT COUNT(*) AS count FROM weapons WHERE user_id = ?');
+$stmt = $pdo->prepare("SELECT COUNT(*) AS count FROM {$weaponsTable} WHERE user_id = ?");
 $stmt->execute([$userId]);
 $weaponCount = (int) $stmt->fetch()['count'];
 
 $stmt = $pdo->prepare(
     'SELECT ss.*, w.manufacturer, w.model
-     FROM shooting_sessions ss
-     JOIN weapons w ON w.id = ss.weapon_id
+     FROM ' . $sessionsTable . ' ss
+     JOIN ' . $weaponsTable . ' w ON w.id = ss.weapon_id
      WHERE ss.user_id = ?
      ORDER BY ss.session_date DESC, ss.id DESC
      LIMIT 1'
@@ -24,10 +27,10 @@ $stmt->execute([$userId]);
 $latestSession = $stmt->fetch();
 
 $stmt = $pdo->prepare(
-    'SELECT s.*, ss.session_date, w.manufacturer, w.model
-     FROM series s
-     JOIN shooting_sessions ss ON ss.id = s.session_id
-     JOIN weapons w ON w.id = ss.weapon_id
+    'SELECT s.*, ss.session_date, ss.discipline, ss.shooter_age, w.manufacturer, w.model, w.weapon_class
+     FROM ' . $seriesTable . ' s
+     JOIN ' . $sessionsTable . ' ss ON ss.id = s.session_id
+     JOIN ' . $weaponsTable . ' w ON w.id = ss.weapon_id
      WHERE ss.user_id = ?
      ORDER BY s.created_at DESC, s.id DESC
      LIMIT 1'
@@ -37,8 +40,8 @@ $latestSeries = $stmt->fetch();
 
 $stmt = $pdo->prepare(
     'SELECT MAX(s.total_score) AS best_score, MAX(s.x_count) AS best_x
-     FROM series s
-     JOIN shooting_sessions ss ON ss.id = s.session_id
+     FROM ' . $seriesTable . ' s
+     JOIN ' . $sessionsTable . ' ss ON ss.id = s.session_id
      WHERE ss.user_id = ?'
 );
 $stmt->execute([$userId]);
@@ -47,8 +50,8 @@ $best = $stmt->fetch();
 $stmt = $pdo->prepare(
     'SELECT AVG(total_score) AS avg_score FROM (
         SELECT s.total_score
-        FROM series s
-        JOIN shooting_sessions ss ON ss.id = s.session_id
+        FROM ' . $seriesTable . ' s
+        JOIN ' . $sessionsTable . ' ss ON ss.id = s.session_id
         WHERE ss.user_id = ?
         ORDER BY s.created_at DESC, s.id DESC
         LIMIT 10
@@ -92,7 +95,9 @@ require __DIR__ . '/../includes/header.php';
         <article class="card stack">
             <h2>Senaste serie</h2>
             <?php if ($latestSeries): ?>
-                <p>Serie <?= (int) $latestSeries['series_number'] ?>: <?= (int) $latestSeries['total_score'] ?> poäng, <?= (int) $latestSeries['x_count'] ?> X</p>
+                <?php $latestShots = json_decode($latestSeries['shots_json'], true) ?: []; ?>
+                <?php $latestMedal = series_medal_for_context((string) $latestSeries['discipline'], (string) $latestSeries['weapon_class'], $latestSeries['shooter_age'] !== null ? (int) $latestSeries['shooter_age'] : null, $latestShots); ?>
+                <p>Serie <?= (int) $latestSeries['series_number'] ?>: <?= (int) $latestSeries['total_score'] ?> poäng, <?= (int) $latestSeries['x_count'] ?> X <?= medal_badge_html($latestMedal) ?></p>
                 <p class="muted"><?= e($latestSeries['session_date']) ?> · <?= e($latestSeries['manufacturer']) ?> <?= e($latestSeries['model']) ?></p>
             <?php else: ?>
                 <p class="muted">Ingen serie sparad ännu.</p>

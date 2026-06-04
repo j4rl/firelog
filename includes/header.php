@@ -5,29 +5,44 @@ require_once __DIR__ . '/auth.php';
 
 $page_title = $page_title ?? 'Skjutdagbok';
 $active_page = basename($_SERVER['SCRIPT_NAME'] ?? '');
-$nav_items = [
-    'dashboard.php' => 'Hem',
-    'weapons.php' => 'Vapen',
-    'session_new.php' => 'Skjut',
-    'history.php' => 'Historik',
-    'stats.php' => 'Stats',
-];
+$nav_items = current_user_is_admin()
+    ? [
+        'admin.php' => 'Admin',
+        'admin_users.php' => 'Användare',
+        'admin_weapons.php' => 'Vapen',
+        'admin_series.php' => 'Serier',
+    ]
+    : [
+        'dashboard.php' => 'Hem',
+        'weapons.php' => 'Vapen',
+        'session_new.php' => 'Skjut',
+        'history.php' => 'Historik',
+        'stats.php' => 'Stats',
+        'profile.php' => 'Profil',
+    ];
+$brand_href = current_user_is_admin() ? 'admin.php' : 'dashboard.php';
+$eyebrow = current_user_is_admin() ? 'Administration' : 'Personlig skjutdagbok';
 ?>
 <!doctype html>
 <html lang="sv">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
     <meta name="theme-color" content="#15191f">
     <title><?= e($page_title) ?> - Skjutdagbok</title>
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="../assets/style.css">
+    <link rel="stylesheet" href="assets/style.css">
+    <script src="https://ld.j4rl.se/ld-theme-toggle.js" defer></script>
 </head>
 <body>
-<div class="app-shell">
+<div class="app-shell <?= is_logged_in() ? 'has-sidebar' : '' ?>">
     <?php if (is_logged_in()): ?>
         <aside class="sidebar">
-            <a class="brand" href="dashboard.php">Skjutdagbok</a>
+            <div class="sidebar-top">
+                <a class="brand" href="<?= e($brand_href) ?>">Skjutdagbok</a>
+                <ld-theme-toggle></ld-theme-toggle>
+            </div>
             <nav class="nav-list" aria-label="Huvudnavigation">
                 <?php foreach ($nav_items as $href => $label): ?>
                     <a class="<?= $active_page === $href ? 'active' : '' ?>" href="<?= e($href) ?>"><?= e($label) ?></a>
@@ -37,13 +52,23 @@ $nav_items = [
         </aside>
     <?php endif; ?>
 
-    <main class="page <?= is_logged_in() ? '' : 'page-centered' ?>">
+    <main class="page <?= e($page_class ?? '') ?> <?= is_logged_in() ? '' : 'page-centered' ?>">
+        <?php if (is_logged_in()): ?>
+            <div class="mobile-theme-bar">
+                <ld-theme-toggle></ld-theme-toggle>
+            </div>
+        <?php endif; ?>
         <header class="page-header">
             <div>
-                <p class="eyebrow">Personlig skjutdagbok</p>
+                <p class="eyebrow"><?= e($eyebrow) ?></p>
                 <h1><?= e($page_title) ?></h1>
             </div>
-            <?php if (is_logged_in()): ?>
-                <a class="desktop-action" href="logout.php">Logga ut</a>
-            <?php endif; ?>
+            <div class="header-actions">
+                <?php if (!is_logged_in()): ?>
+                    <ld-theme-toggle></ld-theme-toggle>
+                <?php endif; ?>
+                <?php if (is_logged_in()): ?>
+                    <a class="desktop-action" href="logout.php">Logga ut</a>
+                <?php endif; ?>
+            </div>
         </header>

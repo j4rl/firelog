@@ -1,9 +1,29 @@
 (function () {
   const shoot = document.querySelector('[data-shoot]');
+  const themeMeta = document.querySelector('meta[name="theme-color"]');
+
+  function cssVar(name) {
+    return getComputedStyle(document.body).getPropertyValue(name).trim();
+  }
+
+  function updateThemeColor() {
+    if (themeMeta) {
+      themeMeta.setAttribute('content', cssVar('--theme-color') || '#151515');
+    }
+  }
 
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('service-worker.js').catch(() => {});
+    });
+  }
+
+  updateThemeColor();
+
+  if (themeMeta) {
+    new MutationObserver(updateThemeColor).observe(document.body, {
+      attributes: true,
+      attributeFilter: ['data-theme'],
     });
   }
 
@@ -77,7 +97,8 @@
       currentShots = [];
       numberEl.textContent = String(Number(data.series_number) + 1);
       render();
-      setMessage(`Serie ${data.series_number} sparad: ${data.total_score} poäng, ${data.x_count} X.`, 'ok');
+      const medalText = data.medal && data.medal.label ? ` ${data.medal.label}.` : '';
+      setMessage(`Serie ${data.series_number} sparad: ${data.total_score} poäng, ${data.x_count} X.${medalText}`, 'ok');
     } catch (error) {
       setMessage(error.message, 'error');
     } finally {
