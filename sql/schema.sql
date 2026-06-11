@@ -60,6 +60,7 @@ CREATE TABLE IF NOT EXISTS series (
   shots_json JSON NOT NULL,
   total_score INT UNSIGNED NOT NULL,
   x_count INT UNSIGNED NOT NULL,
+  miss_count INT UNSIGNED NOT NULL DEFAULT 0,
   shot_count INT UNSIGNED NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   UNIQUE KEY uq_series_session_number (session_id, series_number),

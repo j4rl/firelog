@@ -1,7 +1,8 @@
-const CACHE_NAME = 'skjutdagbok-v6';
+const CACHE_NAME = 'firelog-v7';
 const STATIC_ASSETS = [
   'assets/style.css',
   'assets/app.js',
+  'assets/firelog-icon.svg',
   'manifest.webmanifest'
 ];
 

@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/auth.php';
 
-$page_title = $page_title ?? 'Skjutdagbok';
+$page_title = $page_title ?? 'firelog';
 $active_page = basename($_SERVER['SCRIPT_NAME'] ?? '');
 $nav_items = current_user_is_admin()
     ? [
@@ -21,7 +21,7 @@ $nav_items = current_user_is_admin()
         'profile.php' => 'Profil',
     ];
 $brand_href = current_user_is_admin() ? 'admin.php' : 'dashboard.php';
-$eyebrow = current_user_is_admin() ? 'Administration' : 'Personlig skjutdagbok';
+$eyebrow = current_user_is_admin() ? 'Administration' : 'Personlig firelog';
 ?>
 <!doctype html>
 <html lang="sv">
@@ -30,8 +30,9 @@ $eyebrow = current_user_is_admin() ? 'Administration' : 'Personlig skjutdagbok';
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="light dark">
     <meta name="theme-color" content="#15191f">
-    <title><?= e($page_title) ?> - Skjutdagbok</title>
+    <title><?= e($page_title) ?> - firelog</title>
     <link rel="manifest" href="manifest.webmanifest">
+    <link rel="icon" href="assets/firelog-icon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="assets/style.css">
     <script src="https://ld.j4rl.se/ld-theme-toggle.js" defer></script>
 </head>
@@ -40,7 +41,7 @@ $eyebrow = current_user_is_admin() ? 'Administration' : 'Personlig skjutdagbok';
     <?php if (is_logged_in()): ?>
         <aside class="sidebar">
             <div class="sidebar-top">
-                <a class="brand" href="<?= e($brand_href) ?>">Skjutdagbok</a>
+                <a class="brand" href="<?= e($brand_href) ?>"><img src="assets/firelog-icon.svg" alt="" width="34" height="34">firelog</a>
                 <ld-theme-toggle></ld-theme-toggle>
             </div>
             <nav class="nav-list" aria-label="Huvudnavigation">

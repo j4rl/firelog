@@ -97,7 +97,7 @@ require __DIR__ . '/../includes/header.php';
             <?php if ($latestSeries): ?>
                 <?php $latestShots = json_decode($latestSeries['shots_json'], true) ?: []; ?>
                 <?php $latestMedal = series_medal_for_context((string) $latestSeries['discipline'], (string) $latestSeries['weapon_class'], $latestSeries['shooter_age'] !== null ? (int) $latestSeries['shooter_age'] : null, $latestShots); ?>
-                <p>Serie <?= (int) $latestSeries['series_number'] ?>: <?= (int) $latestSeries['total_score'] ?> poäng, <?= (int) $latestSeries['x_count'] ?> X <?= medal_badge_html($latestMedal) ?></p>
+                <p>Serie <?= (int) $latestSeries['series_number'] ?>: <?= (int) $latestSeries['total_score'] ?> poäng, <?= (int) $latestSeries['x_count'] ?> X, <?= (int) $latestSeries['miss_count'] ?> missar <?= medal_badge_html($latestMedal) ?></p>
                 <p class="muted"><?= e($latestSeries['session_date']) ?> · <?= e($latestSeries['manufacturer']) ?> <?= e($latestSeries['model']) ?></p>
             <?php else: ?>
                 <p class="muted">Ingen serie sparad ännu.</p>

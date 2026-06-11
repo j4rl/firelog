@@ -38,17 +38,18 @@ require __DIR__ . '/../includes/header.php';
     </section>
 
     <section class="card stack series-live shoot-live">
-        <div class="grid three shoot-metrics">
+        <div class="grid four shoot-metrics">
             <div class="metric"><span class="muted">Serie</span><strong data-series-number><?= $nextNumber ?></strong></div>
             <div class="metric"><span class="muted">Poäng</span><strong data-total>0</strong></div>
             <div class="metric"><span class="muted">X</span><strong data-x-count>0</strong></div>
+            <div class="metric"><span class="muted">Missar</span><strong data-miss-count>0</strong></div>
         </div>
         <div class="shots" data-current-shots></div>
         <div class="message" data-shoot-message hidden></div>
     </section>
 
     <section class="score-grid" aria-label="Poängknappar">
-        <?php foreach (['X', '10', '9', '8', '7', '6', '5', '4', '3', '2', '1', '0'] as $shot): ?>
+        <?php foreach (['X', '10', '9', '8', '7', '6', '5', '4', '3', '2', '1', '-'] as $shot): ?>
             <button class="score-button" type="button" data-shot="<?= e($shot) ?>"><?= e($shot) ?></button>
         <?php endforeach; ?>
     </section>

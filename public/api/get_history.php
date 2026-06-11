@@ -16,7 +16,7 @@ $sessionsTable = db_table('shooting_sessions');
 $weaponsTable = db_table('weapons');
 
 $stmt = $pdo->prepare(
-    'SELECT s.series_number, s.shots_json, s.total_score, s.x_count, s.shot_count, ss.session_date, ss.discipline, ss.distance_meters, ss.shooter_age, w.manufacturer, w.model, w.weapon_class
+    'SELECT s.series_number, s.shots_json, s.total_score, s.x_count, s.miss_count, s.shot_count, ss.session_date, ss.discipline, ss.distance_meters, ss.shooter_age, w.manufacturer, w.model, w.weapon_class
      FROM ' . $seriesTable . ' s
      JOIN ' . $sessionsTable . ' ss ON ss.id = s.session_id
      JOIN ' . $weaponsTable . ' w ON w.id = ss.weapon_id

@@ -1,9 +1,16 @@
 {
-  "name": "Skjutdagbok",
-  "short_name": "Skjutdagbok",
+  "name": "firelog",
+  "short_name": "firelog",
   "start_url": "index.php",
   "display": "standalone",
   "background_color": "#15191f",
   "theme_color": "#15191f",
-  "icons": []
+  "icons": [
+    {
+      "src": "assets/firelog-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
 }

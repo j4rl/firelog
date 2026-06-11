@@ -61,13 +61,14 @@ try {
     $stmt->execute([$sessionId]);
     $seriesNumber = (int) $stmt->fetch()['next_number'];
 
-    $stmt = $pdo->prepare("INSERT INTO {$seriesTable} (session_id, series_number, shots_json, total_score, x_count, shot_count) VALUES (?, ?, ?, ?, ?, ?)");
+    $stmt = $pdo->prepare("INSERT INTO {$seriesTable} (session_id, series_number, shots_json, total_score, x_count, miss_count, shot_count) VALUES (?, ?, ?, ?, ?, ?, ?)");
     $stmt->execute([
         $sessionId,
         $seriesNumber,
         json_encode(array_values($shots), JSON_UNESCAPED_UNICODE),
         $score['total_score'],
         $score['x_count'],
+        $score['miss_count'],
         $score['shot_count'],
     ]);
     $pdo->commit();
@@ -76,16 +77,26 @@ try {
     api_response(['success' => false, 'message' => 'Kunde inte spara serien.'], 500);
 }
 
+$stmt = $pdo->prepare("SELECT shots_json FROM {$seriesTable} WHERE session_id = ? ORDER BY series_number");
+$stmt->execute([$sessionId]);
+$sessionSeries = $stmt->fetchAll();
+
 api_response([
     'success' => true,
     'series_number' => $seriesNumber,
     'total_score' => $score['total_score'],
     'x_count' => $score['x_count'],
+    'miss_count' => $score['miss_count'],
     'shot_count' => $score['shot_count'],
     'medal' => series_medal_for_context(
         (string) $session['discipline'],
         (string) $session['weapon_class'],
         $session['shooter_age'] !== null ? (int) $session['shooter_age'] : null,
         $shots
+    ),
+    'session_medal' => session_medal_for_context(
+        (string) $session['discipline'],
+        (string) $session['weapon_class'],
+        $sessionSeries
     ),
 ]);

@@ -69,14 +69,14 @@ require __DIR__ . '/../includes/header.php';
                 <strong class="item-title"><?= e($row['session_date']) ?> · Serie <?= (int) $row['series_number'] ?><?= medal_badge_html($medal) ?></strong>
                 <span class="meta"><?= e($row['manufacturer']) ?> <?= e($row['model']) ?> · <?= e($row['discipline']) ?> · <?= (int) $row['distance_meters'] ?> m</span>
                 <div class="shots"><?php foreach ($shots as $shot): ?><span class="shot-pill"><?= e($shot) ?></span><?php endforeach; ?></div>
-                <span><?= (int) $row['total_score'] ?> poäng · <?= (int) $row['x_count'] ?> X</span>
+                <span><?= (int) $row['total_score'] ?> poäng · <?= (int) $row['x_count'] ?> X · <?= (int) $row['miss_count'] ?> missar</span>
             </article>
         <?php endforeach; ?>
     </div>
 
     <div class="table-wrap">
         <table>
-            <thead><tr><th>Datum</th><th>Vapen</th><th>Disciplin</th><th>Serie</th><th>Märke</th><th>Skott</th><th>Poäng</th><th>X</th></tr></thead>
+            <thead><tr><th>Datum</th><th>Vapen</th><th>Disciplin</th><th>Serie</th><th>Märke</th><th>Skott</th><th>Poäng</th><th>X</th><th>Missar</th></tr></thead>
             <tbody>
             <?php foreach ($rows as $row): $shots = json_decode($row['shots_json'], true) ?: []; ?>
                 <?php $medal = series_medal_for_context((string) $row['discipline'], (string) $row['weapon_class'], $row['shooter_age'] !== null ? (int) $row['shooter_age'] : null, $shots); ?>
@@ -89,6 +89,7 @@ require __DIR__ . '/../includes/header.php';
                     <td><?= e(implode(' - ', $shots)) ?></td>
                     <td><?= (int) $row['total_score'] ?></td>
                     <td><?= (int) $row['x_count'] ?></td>
+                    <td><?= (int) $row['miss_count'] ?></td>
                 </tr>
             <?php endforeach; ?>
             </tbody>

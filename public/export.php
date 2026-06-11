@@ -12,7 +12,7 @@ $weaponsTable = db_table('weapons');
 $stmt = $pdo->prepare(
     'SELECT ss.session_date, ss.location, ss.discipline, ss.distance_meters, ss.shooter_age,
             w.manufacturer, w.model, w.caliber, w.weapon_class, w.serial_number,
-            s.series_number, s.shots_json, s.total_score, s.x_count, s.shot_count
+            s.series_number, s.shots_json, s.total_score, s.x_count, s.miss_count, s.shot_count
      FROM ' . $seriesTable . ' s
      JOIN ' . $sessionsTable . ' ss ON ss.id = s.session_id
      JOIN ' . $weaponsTable . ' w ON w.id = ss.weapon_id
@@ -21,12 +21,12 @@ $stmt = $pdo->prepare(
 );
 $stmt->execute([current_user_id()]);
 
-$filename = 'skjutdagbok-' . date('Y-m-d') . '.csv';
+$filename = 'firelog-' . date('Y-m-d') . '.csv';
 header('Content-Type: text/csv; charset=utf-8');
 header('Content-Disposition: attachment; filename="' . $filename . '"');
 
 $out = fopen('php://output', 'w');
-fputcsv($out, ['datum', 'plats', 'disciplin', 'avstand_m', 'alder', 'vapen', 'kaliber', 'klass', 'serienummer', 'serie_i_pass', 'marke', 'skott', 'totalpoang', 'x', 'antal_skott']);
+fputcsv($out, ['datum', 'plats', 'disciplin', 'avstand_m', 'alder', 'vapen', 'kaliber', 'klass', 'serienummer', 'serie_i_pass', 'marke', 'skott', 'totalpoang', 'x', 'missar', 'antal_skott']);
 
 while ($row = $stmt->fetch()) {
     $shots = json_decode($row['shots_json'], true) ?: [];
@@ -46,6 +46,7 @@ while ($row = $stmt->fetch()) {
         implode(' - ', $shots),
         $row['total_score'],
         $row['x_count'],
+        $row['miss_count'],
         $row['shot_count'],
     ]);
 }

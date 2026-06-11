@@ -36,11 +36,12 @@ if (is_post()) {
     } else {
         try {
             $score = score_shots($shots);
-            $stmt = $pdo->prepare("UPDATE {$seriesTable} SET shots_json = ?, total_score = ?, x_count = ?, shot_count = ? WHERE id = ?");
+            $stmt = $pdo->prepare("UPDATE {$seriesTable} SET shots_json = ?, total_score = ?, x_count = ?, miss_count = ?, shot_count = ? WHERE id = ?");
             $stmt->execute([
                 json_encode($shots, JSON_UNESCAPED_UNICODE),
                 $score['total_score'],
                 $score['x_count'],
+                $score['miss_count'],
                 $score['shot_count'],
                 $id,
             ]);
@@ -60,7 +61,7 @@ require __DIR__ . '/../includes/header.php';
         <label>Skott
             <input name="shots" value="<?= e(implode(' ', $shots)) ?>" required>
         </label>
-        <p class="muted">Tillåtna värden: X, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0. Separera med mellanslag, komma eller bindestreck.</p>
+        <p class="muted">Tillåtna värden: X, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1 och - för miss. Separera med mellanslag, komma eller semikolon.</p>
         <div class="actions">
             <button type="submit">Spara serie</button>
             <a class="button secondary" href="admin_series.php">Avbryt</a>

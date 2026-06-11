@@ -102,6 +102,7 @@ function db_create_missing_tables(PDO $pdo): void
             shots_json JSON NOT NULL,
             total_score INT UNSIGNED NOT NULL,
             x_count INT UNSIGNED NOT NULL,
+            miss_count INT UNSIGNED NOT NULL DEFAULT 0,
             shot_count INT UNSIGNED NOT NULL,
             created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
             UNIQUE KEY uq_series_session_number (session_id, series_number),
@@ -113,11 +114,70 @@ function db_create_missing_tables(PDO $pdo): void
     );
 }
 
+function db_score_shots_json_for_migration(string $shotsJson): ?array
+{
+    $shots = json_decode($shotsJson, true);
+    if (!is_array($shots)) {
+        return null;
+    }
+
+    $total = 0;
+    $xCount = 0;
+    $missCount = 0;
+
+    foreach ($shots as $shot) {
+        $shot = (string) $shot;
+        if ($shot === 'X') {
+            $total += 10;
+            $xCount++;
+            continue;
+        }
+        if ($shot === '-' || $shot === '0') {
+            $missCount++;
+            continue;
+        }
+        $total += max(0, (int) $shot);
+    }
+
+    return [
+        'total_score' => $total,
+        'x_count' => $xCount,
+        'miss_count' => $missCount,
+        'shot_count' => count($shots),
+    ];
+}
+
+function db_backfill_series_scores(PDO $pdo): void
+{
+    $seriesTable = db_table('series');
+    $rows = $pdo->query("SELECT id, shots_json FROM {$seriesTable}")->fetchAll();
+    if (!$rows) {
+        return;
+    }
+
+    $stmt = $pdo->prepare("UPDATE {$seriesTable} SET total_score = ?, x_count = ?, miss_count = ?, shot_count = ? WHERE id = ?");
+    foreach ($rows as $row) {
+        $score = db_score_shots_json_for_migration((string) $row['shots_json']);
+        if ($score === null) {
+            continue;
+        }
+
+        $stmt->execute([
+            $score['total_score'],
+            $score['x_count'],
+            $score['miss_count'],
+            $score['shot_count'],
+            (int) $row['id'],
+        ]);
+    }
+}
+
 db_create_missing_tables($pdo);
 
 try {
     $sessionsTable = db_table('shooting_sessions');
     $usersTable = db_table('users');
+    $seriesTable = db_table('series');
 
     $column = $pdo->query("SHOW COLUMNS FROM {$sessionsTable} LIKE 'shooter_age'")->fetch();
     if (!$column) {
@@ -132,6 +192,12 @@ try {
     $column = $pdo->query("SHOW COLUMNS FROM {$usersTable} LIKE 'birth_date'")->fetch();
     if (!$column) {
         $pdo->exec("ALTER TABLE {$usersTable} ADD COLUMN birth_date DATE NULL AFTER is_admin");
+    }
+
+    $column = $pdo->query("SHOW COLUMNS FROM {$seriesTable} LIKE 'miss_count'")->fetch();
+    if (!$column) {
+        $pdo->exec("ALTER TABLE {$seriesTable} ADD COLUMN miss_count INT UNSIGNED NOT NULL DEFAULT 0 AFTER x_count");
+        db_backfill_series_scores($pdo);
     }
 } catch (Throwable) {
     // Keep startup resilient; schema.sql documents the required column.

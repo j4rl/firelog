@@ -49,7 +49,7 @@ require __DIR__ . '/../includes/header.php';
                 <strong class="item-title"><?= e($row['username']) ?> · <?= e($row['session_date']) ?> · Serie <?= (int) $row['series_number'] ?><?= medal_badge_html($medal) ?></strong>
                 <span class="meta"><?= e($row['manufacturer']) ?> <?= e($row['model']) ?> · <?= e($row['discipline']) ?></span>
                 <div class="shots"><?php foreach ($shots as $shot): ?><span class="shot-pill"><?= e($shot) ?></span><?php endforeach; ?></div>
-                <span><?= (int) $row['total_score'] ?> poäng · <?= (int) $row['x_count'] ?> X</span>
+                <span><?= (int) $row['total_score'] ?> poäng · <?= (int) $row['x_count'] ?> X · <?= (int) $row['miss_count'] ?> missar</span>
                 <div class="actions">
                     <a class="button secondary" href="admin_series_edit.php?id=<?= (int) $row['id'] ?>">Redigera</a>
                     <form class="inline-form" method="post" onsubmit="return confirm('Ta bort serien?');">
@@ -76,7 +76,7 @@ require __DIR__ . '/../includes/header.php';
                     <td><?= (int) $row['series_number'] ?></td>
                     <td><?= medal_badge_html($medal) ?></td>
                     <td><?= e(implode(' - ', $shots)) ?></td>
-                    <td><?= (int) $row['total_score'] ?> p · <?= (int) $row['x_count'] ?> X</td>
+                    <td><?= (int) $row['total_score'] ?> p · <?= (int) $row['x_count'] ?> X · <?= (int) $row['miss_count'] ?> missar</td>
                     <td>
                         <div class="table-actions">
                             <a class="button secondary" href="admin_series_edit.php?id=<?= (int) $row['id'] ?>">Redigera</a>

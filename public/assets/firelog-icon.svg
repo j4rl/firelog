@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">firelog icon</title>
+  <desc id="desc">A flame rising from a wooden log with target rings.</desc>
+  <rect width="512" height="512" rx="112" fill="#15191f"/>
+  <path d="M256 74c34 47 17 78 54 113 27 26 43 59 43 96 0 61-44 103-97 103s-97-42-97-103c0-31 13-57 36-82 29-31 51-65 61-127z" fill="#f26b2a"/>
+  <path d="M250 162c22 31 10 52 35 75 18 17 29 38 29 62 0 39-27 67-58 67s-58-28-58-67c0-20 8-37 24-54 18-20 30-44 28-83z" fill="#ffd15c"/>
+  <path d="M116 336c0-37 30-67 67-67h146c37 0 67 30 67 67s-30 67-67 67H183c-37 0-67-30-67-67z" fill="#7a4a24"/>
+  <path d="M183 269h146c37 0 67 30 67 67H116c0-37 30-67 67-67z" fill="#a86832"/>
+  <circle cx="184" cy="336" r="54" fill="#c88745"/>
+  <circle cx="184" cy="336" r="38" fill="none" stroke="#5b351a" stroke-width="10"/>
+  <circle cx="184" cy="336" r="18" fill="none" stroke="#5b351a" stroke-width="9"/>
+  <path d="M236 312h102M236 338h89M236 364h70" stroke="#5b351a" stroke-width="15" stroke-linecap="round"/>
+</svg>

@@ -35,6 +35,7 @@
   const shotsEl = document.querySelector('[data-current-shots]');
   const totalEl = document.querySelector('[data-total]');
   const xEl = document.querySelector('[data-x-count]');
+  const missEl = document.querySelector('[data-miss-count]');
   const numberEl = document.querySelector('[data-series-number]');
   const messageEl = document.querySelector('[data-shoot-message]');
   const saveButton = document.querySelector('[data-save-series]');
@@ -42,11 +43,19 @@
   let currentShots = [];
 
   function score() {
-    return currentShots.reduce((sum, shot) => sum + (shot === 'X' ? 10 : Number(shot)), 0);
+    return currentShots.reduce((sum, shot) => {
+      if (shot === 'X') return sum + 10;
+      if (shot === '-') return sum;
+      return sum + Number(shot);
+    }, 0);
   }
 
   function xCount() {
     return currentShots.filter((shot) => shot === 'X').length;
+  }
+
+  function missCount() {
+    return currentShots.filter((shot) => shot === '-' || shot === '0').length;
   }
 
   function render() {
@@ -65,6 +74,7 @@
     }
     totalEl.textContent = String(score());
     xEl.textContent = String(xCount());
+    missEl.textContent = String(missCount());
   }
 
   function setMessage(text, type) {
@@ -97,8 +107,11 @@
       currentShots = [];
       numberEl.textContent = String(Number(data.series_number) + 1);
       render();
-      const medalText = data.medal && data.medal.label ? ` ${data.medal.label}.` : '';
-      setMessage(`Serie ${data.series_number} sparad: ${data.total_score} poäng, ${data.x_count} X.${medalText}`, 'ok');
+      const medals = [data.medal, data.session_medal]
+        .filter((medal) => medal && medal.label)
+        .map((medal) => medal.label);
+      const medalText = medals.length > 0 ? ` ${medals.join('. ')}.` : '';
+      setMessage(`Serie ${data.series_number} sparad: ${data.total_score} poäng, ${data.x_count} X, ${data.miss_count} missar.${medalText}`, 'ok');
     } catch (error) {
       setMessage(error.message, 'error');
     } finally {
